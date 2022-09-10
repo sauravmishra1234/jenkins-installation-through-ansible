@@ -1,0 +1,34 @@
+---
+- name: Ansible Install Jenkins on Ubuntu18 Server
+  hosts: all
+  become: true
+  tasks:
+  - name: APT Update
+    command: apt update
+
+  - name: Add Java Repo
+    apt_repository:  repo='ppa:openjdk-r/ppa'
+
+  - name: Install Java
+    apt: pkg=openjdk-8-jdk
+    become: yes
+
+  - name: Install key for the Jenkins apt repository
+    apt_key:
+      url: "https://pkg.jenkins.io/debian/jenkins-ci.org.key"
+      state: present
+
+  - name: Install access to the Jenkins apt repository
+    apt_repository:
+      repo: deb http://pkg.jenkins.io/debian-stable binary/
+      state: present
+      filename: 'jenkins-stable'
+
+  - name: APT Update for the Jenkins repository
+    command: apt update
+
+  - name: Install Jenkins package
+    apt: name=jenkins state=present
+
+  - name: Wait for Jenkins to start up
+    wait_for: timeout=35
